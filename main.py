@@ -6,12 +6,12 @@ import argparse
 from agent import Agent
 
 # data parameters
-symbol = "AAPL"
+symbol = "SAAB-B.ST"
 interval = "1d"
-period = "1y"
+period = "5y"
 
 # hyperparameters
-episodes = 1000
+episodes = 15000
 lr = 1e-4
 gamma = 0.99
 epsilon = 1.0

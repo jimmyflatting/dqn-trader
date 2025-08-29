@@ -83,11 +83,11 @@ class Agent():
         batch = random.sample(self.memory, self.batch_size)
         states, actions, rewards, next_states, dones = zip(*batch)
 
-        states_tensor = torch.FloatTensor(states).to(self.device)
-        actions_tensor = torch.LongTensor(actions).to(self.device)
-        rewards_tensor = torch.FloatTensor(rewards).to(self.device)
-        next_states_tensor = torch.FloatTensor(next_states).to(self.device)
-        dones_tensor = torch.FloatTensor(dones).to(self.device)
+        states_tensor = torch.FloatTensor(np.array(states)).to(self.device)
+        actions_tensor = torch.LongTensor(np.array(actions)).to(self.device)
+        rewards_tensor = torch.FloatTensor(np.array(rewards)).to(self.device)
+        next_states_tensor = torch.FloatTensor(np.array(next_states)).to(self.device)
+        dones_tensor = torch.FloatTensor(np.array(dones)).to(self.device)
 
         # compute target Q-values
         with torch.no_grad():
