@@ -184,12 +184,12 @@ class Agent():
                 print(f"💾 New best model saved! Episode {episode}: Net Worth ${self.env.net_worth:.2f} (Profit: ${self.env.net_worth - self.env.initial_balance:.2f})")
             
             # Print progress
-            if episode % 100 == 0:
-                avg_reward = np.mean(episode_rewards[-100:])
-                avg_loss = np.mean(episode_losses[-100:])
+            if episode % 10 == 0:
+                avg_reward = np.mean(episode_rewards[-10:]) if len(episode_rewards) >= 10 else np.mean(episode_rewards)
+                avg_loss = np.mean(episode_losses[-10:]) if len(episode_losses) >= 10 else np.mean(episode_losses)
                 print(f"Episode {episode}/{episodes}")
-                print(f"  Avg Reward: {avg_reward:.4f}")
-                print(f"  Avg Loss: {avg_loss:.4f}")
+                print(f"  Avg Reward (last 10): {avg_reward:.4f}")
+                print(f"  Avg Loss (last 10): {avg_loss:.4f}")
                 print(f"  Epsilon: {self.epsilon:.4f}")
                 print(f"  Net Worth: ${self.env.net_worth:.2f}")
                 print(f"  Profit: ${self.env.net_worth - self.env.initial_balance:.2f}")
