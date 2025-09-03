@@ -11,7 +11,7 @@ interval = "1d"
 period = "5y"
 
 # hyperparameters
-episodes = 15000
+episodes = 200
 lr = 1e-4
 gamma = 0.99
 epsilon = 1.0
