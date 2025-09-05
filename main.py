@@ -6,8 +6,8 @@ import argparse
 from agent import Agent
 
 # data parameters
-symbol = "SAAB-B.ST"
-interval = "1d"
+symbol = "SPY"
+interval = "1wk"
 period = "5y"
 
 # hyperparameters

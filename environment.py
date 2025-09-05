@@ -126,7 +126,7 @@ class Env(gym.Env):
         
         # Step reward (change in net worth)
         prev_net_worth = self.max_net_worth if self.current_step == self.lookback_window else self._get_prev_net_worth()
-        reward += (self.net_worth - prev_net_worth) / self.initial_balance
+        reward += self._calculate_reward(prev_net_worth)
         
         # Move to next step
         self.current_step += 1
@@ -142,6 +142,79 @@ class Env(gym.Env):
         }
         
         return self._get_observation(), reward, self.done, info
+    
+    def _calculate_reward(self, prev_net_worth):
+        """
+        Enhanced reward function that considers position, price changes, volatility, and risk factors
+        """
+        # Base return from net worth change
+        base_return = (self.net_worth - prev_net_worth) / self.initial_balance
+        
+        # Calculate current position as normalized position value
+        current_price = self.data.iloc[self.current_step]['Close']
+        current_position = (self.shares_held * current_price) / self.initial_balance
+        
+        # Calculate price change from previous step
+        if self.current_step > self.lookback_window:
+            prev_price = self.data.iloc[self.current_step - 1]['Close']
+            price_change = (current_price - prev_price) / prev_price
+        else:
+            price_change = 0
+        
+        # Calculate volatility from recent price data
+        volatility = self._calculate_volatility()
+        
+        # Reward higher volatility exposure when positioned
+        volatility_bonus = abs(current_position) * volatility * 0.05
+        
+        # Penalize cash/no-position states (encourage active trading)
+        inaction_penalty = -0.01 if current_position == 0 else 0
+        
+        # Bonus for taking risk with larger position sizes
+        risk_bonus = abs(current_position) * 0.02
+        
+        # Additional reward for profitable position alignment with price movement
+        if current_position > 0 and price_change > 0:
+            # Long position with positive price movement
+            directional_bonus = current_position * price_change * 2
+        elif current_position == 0 and abs(price_change) < 0.01:
+            # Staying out during low volatility periods
+            directional_bonus = 0.005
+        else:
+            directional_bonus = 0
+        
+        total_reward = base_return + volatility_bonus + risk_bonus + inaction_penalty + directional_bonus
+        
+        return total_reward
+    
+    def _calculate_volatility(self):
+        """
+        Calculate volatility based on recent price movements
+        Uses rolling window of price changes to compute standard deviation
+        """
+        if self.current_step <= self.lookback_window:
+            return 0.01  # Default low volatility for early steps
+        
+        # Use lookback window for volatility calculation
+        start_idx = max(0, self.current_step - self.lookback_window)
+        end_idx = self.current_step + 1
+        
+        price_data = self.data.iloc[start_idx:end_idx]['Close']
+        
+        if len(price_data) < 2:
+            return 0.01
+        
+        # Calculate percentage changes
+        price_changes = price_data.pct_change().dropna()
+        
+        if len(price_changes) == 0:
+            return 0.01
+        
+        # Return standard deviation of price changes as volatility measure
+        volatility = price_changes.std()
+        
+        # Ensure volatility is not zero or too small
+        return max(volatility, 0.001)
 
     def _get_prev_net_worth(self):
         """Calculate previous net worth"""

@@ -48,7 +48,7 @@ class Agent():
             self.state_dim = state_dim
             self.q_net = DQN(state_dim, 128, self.action_dim)
             self.target_net = copy.deepcopy(self.q_net)
-            self.optimizer = torch.optim.Adam(self.q_net.parameters(), lr=self.learning_rate)
+            self.optimizer = torch.optim.Adam(self.q_net.parameters(), lr=self.learning_rate) # testa med Adam
             self.q_net.to(self.device)
             self.target_net.to(self.device)
     
